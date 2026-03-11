@@ -1,0 +1,12 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - 'build'
+      - '--build-arg'
+      - 'APP_CONFIG=config/default.js'
+      - '-t'
+      - 'asia-south2-docker.pkg.dev/puru-255206/puru1/dviewer'
+      - '.'
+images: ['asia-south2-docker.pkg.dev/puru-255206/puru1/dviewer']
+options:
+  machineType: 'E2_HIGHCPU_8'
