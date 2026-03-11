@@ -1,41 +1,5 @@
-# syntax=docker/dockerfile:1.7-labs
-# This dockerfile is used to publish the `ohif/app` image on dockerhub.
-#
-# It's a good example of how to build our static application and package it
-# with a web server capable of hosting it as static content.
-#
-# docker build
-# --------------
-# If you would like to use this dockerfile to build and tag an image, make sure
-# you set the context to the project's root directory:
-# https://docs.docker.com/engine/reference/commandline/build/
-#
-#
-# SUMMARY
-# --------------
-# This dockerfile has two stages:
-#
-# 1. Building the React application for production
-# 2. Setting up our Nginx (Alpine Linux) image w/ step one's output
-#
-
-
-# syntax=docker/dockerfile:1.7-labs
-# This dockerfile is used to publish the `ohif/app` image on dockerhub.
-#
-# It's a good example of how to build our static application and package it
-# with a web server capable of hosting it as static content.
-#
-# docker build
-# --------------
-# If you would like to use this dockerfile to build and tag an image, make sure
-# you set the context to the project's root directory:
-# https://docs.docker.com/engine/reference/commandline/build/
-#
-#
-# SUMMARY
-# --------------
-# This dockerfile is used as an input for a second stage to make things run faster.
+# Puru DICOM Viewer - based on OHIF Viewers v3.12.0
+# Multi-stage build: node (bun) → nginx
 #
 
 
@@ -53,16 +17,12 @@ RUN npm install -g bun@1.2.23
 RUN npm install -g lerna@7.4.2
 ENV PATH=/usr/src/app/node_modules/.bin:$PATH
 
-# Do an initial install and then a final install
-COPY package.json yarn.lock preinstall.js lerna.json ./
-COPY --parents ./addOns/package.json ./addOns/*/*/package.json ./extensions/*/package.json ./modes/*/package.json ./platform/*/package.json ./
-# Run the install before copying the rest of the files
+# Copy everything for install and build
+COPY . .
 
 RUN bun pm cache rm
 RUN bun install
 RUN bun add ajv@8.12.0
-# Copy the local directory
-COPY --link --exclude=yarn.lock --exclude=package.json --exclude=Dockerfile . .
 
 # Build here
 # After install it should hopefully be stable until the local directory changes
