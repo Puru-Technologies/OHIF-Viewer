@@ -21,8 +21,8 @@ ENV PATH=/usr/src/app/node_modules/.bin:$PATH
 COPY . .
 
 RUN bun pm cache rm
-RUN bun install
-RUN bun add ajv@8.12.0
+RUN bun install --no-frozen-lockfile
+RUN bun add ajv@8.12.0 --no-frozen-lockfile
 
 # Build here
 # After install it should hopefully be stable until the local directory changes
