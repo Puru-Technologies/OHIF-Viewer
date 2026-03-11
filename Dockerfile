@@ -20,9 +20,10 @@ ENV PATH=/usr/src/app/node_modules/.bin:$PATH
 # Copy everything for install and build
 COPY . .
 
+RUN sed -i 's/frozenLockfile = true/frozenLockfile = false/' bunfig.toml
 RUN bun pm cache rm
-RUN bun install --no-frozen-lockfile
-RUN bun add ajv@8.12.0 --no-frozen-lockfile
+RUN bun install
+RUN bun add ajv@8.12.0
 
 # Build here
 # After install it should hopefully be stable until the local directory changes
