@@ -10,19 +10,59 @@ import Compose from './Compose';
 import loadModules from '../../pluginImports';
 import { defaultRouteInit } from './defaultRouteInit';
 import { updateAuthServiceAndCleanUrl } from './updateAuthServiceAndCleanUrl';
+import {
+  usePuruLauncher,
+  PuruStudyPicker,
+  PuruLauncherNotFound,
+  PuruLauncherError,
+  PuruLauncherSpinner,
+} from '../../launcher/PuruStudyLauncher';
 
 const { getSplitParam } = utils;
 
-export default function ModeRoute({
+/**
+ * Outer gate: resolves external-HIS identifiers (AccessionNumber / MRN / uhid)
+ * BEFORE the inner Mode renders. Two reasons to do this outside the inner
+ * component:
+ *   1. Avoid the cost of initializing the data source for a URL we're about to
+ *      redirect away from.
+ *   2. Keep React's rules-of-hooks happy — the inner Mode component has many
+ *      hooks; if we returned early between them, the hook order would change
+ *      across renders.
+ *
+ * When the URL carries only the original {@code StudyInstanceUIDs} param (or
+ * none of the launcher params), the launcher hook stays idle and the inner
+ * Mode renders exactly as before.
+ */
+export default function ModeRoute(props: withAppTypes) {
+  const [appConfig] = useAppConfig();
+  const launcher = usePuruLauncher(appConfig);
+
+  switch (launcher.status) {
+    case 'resolving':
+    case 'redirecting':
+      return <PuruLauncherSpinner />;
+    case 'picker':
+      return <PuruStudyPicker state={launcher} />;
+    case 'not-found':
+      return <PuruLauncherNotFound state={launcher} />;
+    case 'error':
+      return <PuruLauncherError state={launcher} />;
+    case 'idle':
+    default:
+      return <ModeRouteContent {...props} appConfig={appConfig} />;
+  }
+}
+
+function ModeRouteContent({
   mode,
   dataSourceName,
   extensionManager,
   servicesManager,
   commandsManager,
   hotkeysManager,
-}: withAppTypes) {
-  const [appConfig] = useAppConfig();
-
+  appConfig,
+}: withAppTypes & { appConfig: any }) {
   // Parse route params/querystring
   const location = useLocation();
 
