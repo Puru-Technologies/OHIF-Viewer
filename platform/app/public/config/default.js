@@ -3,11 +3,26 @@
 window.config = {
   name: 'config/default.js',
   routerBasename: null,
-  // whiteLabeling: {},
+  whiteLabeling: {
+    createLogoComponentFn: function (React) {
+      return React.createElement(
+        'a',
+        { href: '/' },
+        React.createElement('img', {
+          src: '/puru-logo.svg',
+          className: 'h-8',
+          alt: 'Puru Labs DICOM Viewer',
+        })
+      );
+    },
+  },
+  investigationalUseDialog: {
+    option: 'never',
+  },
   extensions: [],
   modes: [],
   customizationService: {},
-  showStudyList: true,
+  showStudyList: false,
   // some windows systems have issues with more than 3 web workers
   maxNumberOfWebWorkers: 3,
   // below flag is for performance reasons, but it might not work for all servers

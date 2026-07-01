@@ -8,6 +8,7 @@ import WorkList from './WorkList';
 import Local from './Local';
 import Debug from './Debug';
 import NotFound from './NotFound';
+import PuruLanding from './PuruLanding/PuruLanding';
 import buildModeRoutes from './buildModeRoutes';
 import PrivateRoute from './PrivateRoute';
 import PropTypes from 'prop-types';
@@ -119,9 +120,14 @@ const createRoutes = ({
 
   const customRoutes = customizationService.getCustomization('routes.customRoutes');
 
+  const PuruLandingRoute = {
+    path: '/',
+    children: PuruLanding,
+  };
+
   const allRoutes = [
     ...routes,
-    ...(showStudyList ? [WorkListRoute] : []),
+    ...(showStudyList ? [WorkListRoute] : [PuruLandingRoute]),
     ...(customRoutes?.routes || []),
     ...bakedInRoutes,
     customRoutes?.notFoundRoute || notFoundRoute,

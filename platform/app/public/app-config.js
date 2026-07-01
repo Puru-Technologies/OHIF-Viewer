@@ -1,5 +1,7 @@
 window.config = {
   routerBasename: '/',
+  extensions: [],
+  modes: [],
   showStudyList: false,
   dataSources: [
     {
@@ -20,49 +22,13 @@ window.config = {
         React.createElement('img', {
           src: '/puru-logo.svg',
           className: 'h-8',
-          alt: 'Puru DICOM Viewer',
+          alt: 'Puru Labs DICOM Viewer',
         })
       );
     },
   },
-  customizationService: {
-    'viewportOverlay.topLeft': {
-      id: 'viewportOverlay.topLeft',
-      items: [
-        {
-          id: 'PatientNameOverlay',
-          customizationType: 'ohif.overlayItem',
-          label: '',
-          color: 'white',
-          condition: function (props) {
-            return props.instance && props.instance.PatientName;
-          },
-          contentF: function (props) {
-            var pn = props.instance.PatientName;
-            return typeof pn === 'object' ? pn.Alphabetic || '' : pn || '';
-          },
-        },
-        {
-          id: 'PatientIDOverlay',
-          customizationType: 'ohif.overlayItem',
-          attribute: 'PatientID',
-          label: 'ID:',
-          color: 'white',
-          condition: function (props) {
-            return props.instance && props.instance.PatientID;
-          },
-        },
-        {
-          id: 'StudyDateOverlay',
-          customizationType: 'ohif.overlayItem',
-          attribute: 'StudyDate',
-          label: '',
-          color: 'white',
-          condition: function (props) {
-            return props.instance && props.instance.StudyDate;
-          },
-        },
-      ],
-    },
+  investigationalUseDialog: {
+    option: 'never',
   },
+  customizationService: {},
 };
