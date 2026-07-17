@@ -6,20 +6,16 @@ steps:
       - |
         set -e
         IMAGE="asia-south2-docker.pkg.dev/puru-255206/puru1/dviewer"
-        # Base tags: sha (always) and latest (always).
-        TAGS=("-t" "$${IMAGE}:$${SHORT_SHA}" "-t" "$${IMAGE}:latest")
-        # When Cloud Build is triggered by a Puru release tag (puru-vX.Y.Z-pN),
-        # add the tag name as an immutable image tag so hospitals can pin to it.
-        if [[ -n "$${TAG_NAME}" && "$${TAG_NAME}" == puru-* ]]; then
-          TAGS+=("-t" "$${IMAGE}:$${TAG_NAME}")
-        fi
-        docker build --build-arg APP_CONFIG=config/default.js "$${TAGS[@]}" .
-        # Push every tag we built.
-        for t in "$${IMAGE}:$${SHORT_SHA}" "$${IMAGE}:latest"; do
-          docker push "$${t}"
-        done
-        if [[ -n "$${TAG_NAME}" && "$${TAG_NAME}" == puru-* ]]; then
-          docker push "$${IMAGE}:$${TAG_NAME}"
+        # Every build publishes :latest.
+        docker build --build-arg APP_CONFIG=config/default.js -t "$${IMAGE}:latest" .
+        docker push "$${IMAGE}:latest"
+        # When triggered by an annotated tag matching puru-*, also publish
+        # an immutable version tag so hospitals can pin to it in nucleus.
+        # ${TAG_NAME} is a Cloud Build substitution — empty on branch pushes.
+        if [[ -n "${TAG_NAME}" && "${TAG_NAME}" == puru-* ]]; then
+          docker tag "$${IMAGE}:latest" "$${IMAGE}:${TAG_NAME}"
+          docker push "$${IMAGE}:${TAG_NAME}"
         fi
 options:
+  dynamic_substitutions: true
   logging: CLOUD_LOGGING_ONLY
