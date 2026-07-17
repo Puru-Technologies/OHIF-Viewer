@@ -4,33 +4,36 @@
 @tailwind components;
 @tailwind utilities;
 
-/* OHIF Theme */
+/* Puru Theme — deep steel-blue, near-monochrome for image-first DICOM reads.
+ * Anchors: primary = #475569 (slate-600), highlight = #7DD3FC (sky-300).
+ * Chroma deliberately low so radiology images own the eye.
+ * Patched here because runtime-loaded CSS can't win over @layer base cleanly. */
 
 @layer base {
   :root {
-    --highlight: 191 74% 63%;
-    --neutral: 213 22% 59%;
-    --neutral-light: 214 69% 81%;
-    --neutral-dark: 214 16% 21%;
-    --background: 236 62% 5%;
+    --highlight: 199 95% 74%;
+    --neutral: 215 20% 65%;
+    --neutral-light: 213 27% 84%;
+    --neutral-dark: 217 33% 17%;
+    --background: 219 39% 8%;
     --foreground: 0 0% 98%;
-    --card: 234 64% 10%;
+    --card: 222 47% 11%;
     --card-foreground: 0 0% 98%;
-    --popover: 219 90% 15%;
+    --popover: 217 33% 17%;
     --popover-foreground: 0 0% 98%;
-    --primary: 214 98% 60%;
+    --primary: 215 19% 35%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 214 66% 48%;
-    --secondary-foreground: 200 50% 84%;
-    --muted: 234 64% 10%;
-    --muted-foreground: 200 46% 65%;
-    --accent: 217 79% 24%;
+    --secondary: 215 25% 27%;
+    --secondary-foreground: 213 27% 84%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 17%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 236 52% 30%;
-    --ring: 214 98% 60%;
+    --border: 215 25% 20%;
+    --input: 215 25% 27%;
+    --ring: 199 95% 74%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -57,11 +60,11 @@
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
-    --card: 234 64% 10%;
+    --card: 222 47% 11%;
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 214 98% 60%;
+    --primary: 215 19% 35%;
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
@@ -72,8 +75,8 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14.9%;
-    --input: 236 52% 30%;
-    --ring: 214 98% 60%;
+    --input: 215 25% 27%;
+    --ring: 199 95% 74%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;

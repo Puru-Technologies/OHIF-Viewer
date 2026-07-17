@@ -1,0 +1,37 @@
+{
+  "name": "@ohif/extension-puru-branding",
+  "version": "0.0.1",
+  "description": "Puru branding overrides (About modal, product name, links). Isolates branding customization so upstream sync merges cleanly.",
+  "author": "Puru Labs",
+  "license": "MIT",
+  "main": "dist/ohif-extension-puru-branding.umd.js",
+  "module": "src/index.tsx",
+  "engines": {
+    "node": ">=14",
+    "npm": ">=6",
+    "yarn": ">=1.18.0"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "ohif-extension"
+  ],
+  "scripts": {
+    "clean": "shx rm -rf dist",
+    "dev": "cross-env NODE_ENV=development webpack --config .webpack/webpack.dev.js --watch --output-pathinfo",
+    "build": "cross-env NODE_ENV=production webpack --config .webpack/webpack.prod.js",
+    "start": "yarn run dev"
+  },
+  "peerDependencies": {
+    "@ohif/core": "3.12.0",
+    "@ohif/ui-next": "3.12.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-i18next": "12.3.1"
+  },
+  "dependencies": {
+    "@babel/runtime": "7.28.2"
+  }
+}

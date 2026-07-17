@@ -38,6 +38,8 @@ import { Toolbox } from './utils';
 import MoreDropdownMenu from './Components/MoreDropdownMenu';
 import requestDisplaySetCreationForStudy from './Panels/requestDisplaySetCreationForStudy';
 import { Toolbar } from './Toolbar/Toolbar';
+import WrappedPanelStudyBrowser from './Panels/WrappedPanelStudyBrowser';
+import ViewerHeader from './ViewerLayout/ViewerHeader';
 
 const defaultExtension: Types.Extensions.Extension = {
   /**
@@ -106,4 +108,6 @@ export {
   callInputDialog,
   createReportDialogPrompt,
   Toolbar,
+  WrappedPanelStudyBrowser,
+  ViewerHeader,
 };

@@ -1,0 +1,76 @@
+name: Detect upstream OHIF release
+
+on:
+  schedule:
+    # Every Monday 08:00 IST (02:30 UTC). Adjust cadence in scripts/sync-upstream.sh docs.
+    - cron: '30 2 * * 1'
+  workflow_dispatch: {}
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect latest upstream tag
+        id: latest
+        run: |
+          git remote add upstream https://github.com/OHIF/Viewers.git
+          git fetch upstream --tags --prune
+          LATEST=$(git tag -l 'v3.*' --sort=-v:refname | head -n1)
+          echo "latest=${LATEST}" >> "$GITHUB_OUTPUT"
+          echo "Latest upstream tag: ${LATEST}"
+
+      - name: Check if sync branch already exists
+        id: existing
+        run: |
+          BRANCH="sync/${{ steps.latest.outputs.latest }}"
+          if git ls-remote --exit-code --heads origin "${BRANCH}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Attempt merge
+        if: steps.existing.outputs.exists == 'false'
+        id: merge
+        continue-on-error: true
+        run: |
+          git config user.name "puru-sync-bot"
+          git config user.email "sync-bot@purulabs.com"
+          BRANCH="sync/${{ steps.latest.outputs.latest }}"
+          git checkout -b "${BRANCH}"
+          if git merge --no-ff --no-edit \
+              -m "sync: merge upstream ${{ steps.latest.outputs.latest }}" \
+              "refs/tags/${{ steps.latest.outputs.latest }}"; then
+            echo "clean_merge=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "clean_merge=false" >> "$GITHUB_OUTPUT"
+            git merge --abort
+          fi
+          git push origin "${BRANCH}" || true
+
+      - name: Open draft sync PR
+        if: steps.existing.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.latest.outputs.latest }}"
+          BRANCH="sync/${TAG}"
+          BODY_TITLE="Upstream sync: ${TAG}"
+          if [[ "${{ steps.merge.outputs.clean_merge }}" == "true" ]]; then
+            STATUS="Clean merge. Run \`yarn install && yarn dev\` locally, verify /puru-report and /puru-quick still boot, then mark ready."
+          else
+            STATUS="⚠️ Merge had conflicts. Pull branch locally: \`git fetch && git checkout ${BRANCH} && git merge refs/tags/${TAG}\` and resolve. See scripts/sync-upstream.sh for the Puru-owned path list."
+          fi
+          gh pr create \
+            --draft \
+            --title "${BODY_TITLE}" \
+            --body "$(printf 'Automated sync candidate for OHIF %s.\n\n%s\n\nAfter merging, tag `puru-%s-p1` to trigger Cloud Build.\n' "${TAG}" "${STATUS}" "${TAG}")" \
+            --base "${{ github.event.repository.default_branch }}" \
+            --head "${BRANCH}" || echo "PR creation failed — check permissions."

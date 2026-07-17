@@ -3,11 +3,24 @@
 Fork of [OHIF Viewer v3.12](https://github.com/OHIF/Viewers) carrying
 Puru-specific customizations. The upstream code is mostly untouched —
 keep custom code in clearly-namespaced directories (`launcher/`,
-`routes/PuruLanding/`) so future upstream merges stay manageable.
+`routes/PuruLanding/`, `extensions/puru-*/`, `modes/puru-*/`) so future
+upstream merges stay manageable.
 
 - **Working branch:** `puru/v3.12.0` (track this, not `master`)
 - **Stack:** React, TypeScript, React Router 6, monorepo (yarn workspaces)
 - **Dev server:** `yarn dev` (port 3000)
+
+## Read these first
+
+For anything non-trivial, read the corresponding doc before editing:
+
+| Doing | Read |
+|-------|------|
+| Adding a mode / panel / feature | [`docs/puru/DEVELOPMENT.md`](./docs/puru/DEVELOPMENT.md) |
+| Merging an upstream OHIF tag | [`SYNC.md`](./SYNC.md) |
+| Cutting a release / deploying to a hospital | [`docs/puru/RELEASE.md`](./docs/puru/RELEASE.md) |
+| Touching branding / About modal / logos / titles | [`docs/puru/BRANDING.md`](./docs/puru/BRANDING.md) |
+| Just want the map | [`PURU.md`](./PURU.md) |
 
 ## Build / run
 
@@ -27,10 +40,19 @@ yarn build                      # production build → platform/app/dist
 | `platform/app/public/config/default.js` | Puru-tuned dataSources, hangingProtocols, modes |
 | `platform/app/public/app-config.js` | Runtime config injected at index.html load time |
 | `platform/app/public/puru-logo.svg` | Branding |
+| `extensions/puru-reports/` | Reports panel (Mode 2) + compact filmstrip (Mode 1) + PuruQuickLayout |
+| `extensions/puru-branding/` | About modal + product name override via `customizationService` |
+| `modes/puru-quick/` | Mode 1 — routeName `puru-quick`, used inside hydrogen's study-detail iframe |
+| `modes/puru-report/` | Mode 2 — routeName `puru-report`, used by hydrogen worklist window.open |
+| `scripts/sync-upstream.sh` | Manual upstream sync tool |
+| `.github/workflows/detect-upstream-tag.yml` | Weekly auto-PR when new OHIF tag ships |
+| `cloudbuild.yaml` | Builds `dviewer:latest` + `dviewer:<sha>` + `dviewer:puru-vX.Y.Z-pN` on tag |
 
 Anything outside these paths should still match upstream — if you find
 yourself editing core OHIF code, prefer a `customizationService` config
-or a new extension over a patch.
+or a new extension over a patch. See [`SYNC.md`](./SYNC.md) for the list
+of upstream files we HAVE patched (small delta, tracked for sync-time
+conflict resolution).
 
 ## PuruStudyLauncher — external HIS deep-link flow
 
@@ -56,6 +78,17 @@ The launcher hook **only activates** when one of `accessionNumber|uhid|
 AccessionNumber|MRN` is in the query string. For the existing
 `/viewer?StudyInstanceUIDs=<uid>` URL it stays `idle` and the inner
 `ModeRouteContent` renders unchanged.
+
+**External URL contract (never break)**: HIS deployments in the wild use:
+
+- `/viewer?StudyInstanceUIDs=<uid>`
+- `/viewer?accessionNumber=<X>`
+- `/viewer?uhid=<X>`
+
+The `/viewer` routeName is claimed by `@ohif/mode-puru-report` (Mode 2 with
+Reports panel). Upstream OHIF's `@ohif/mode-longitudinal` normally owns this
+route — we skip its registration in `pluginImports.js` so puru-report wins.
+Do NOT re-register longitudinal without also re-routing puru-report.
 
 ### URL params
 

@@ -65,12 +65,15 @@
     {
       "packageName": "@ohif/extension-ultrasound-pleura-bline",
       "version": "3.0.0"
+    },
+    {
+      "packageName": "@ohif/extension-puru-reports"
+    },
+    {
+      "packageName": "@ohif/extension-puru-branding"
     }
   ],
   "modes": [
-    {
-      "packageName": "@ohif/mode-longitudinal"
-    },
     {
       "packageName": "@ohif/mode-basic"
     },
@@ -99,8 +102,15 @@
     {
       "packageName": "@ohif/mode-ultrasound-pleura-bline",
       "version": "3.0.0"
+    },
+    {
+      "packageName": "@ohif/mode-puru-quick"
+    },
+    {
+      "packageName": "@ohif/mode-puru-report"
     }
   ],
+  "//comment_longitudinal": "@ohif/mode-longitudinal deliberately omitted so @ohif/mode-puru-report can claim routeName 'viewer' for the external HIS URL contract. See SYNC.md.",
   "public": [
     {
       "directory": "./platform/public"

@@ -244,7 +244,8 @@ const DefaultFallback = ({
             className="text-primary p-0"
             onClick={() =>
               window.open(
-                'https://github.com/OHIF/Viewers/issues/new?template=bug-report.yml',
+                (window as any).config?.reportIssueUrl ||
+                  'mailto:support@purulabs.com?subject=Puru%20DICOM%20Viewer%20issue',
                 '_blank'
               )
             }

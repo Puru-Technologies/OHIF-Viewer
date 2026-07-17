@@ -3,10 +3,15 @@
  *
  * Lets external systems (HIS / billing portals) deep-link into OHIF without
  * knowing the DICOM-generated StudyInstanceUID. They pass identifiers they
- * actually have on hand:
+ * actually have on hand. The externally-published URL contract is:
  *
+ *   /viewer?StudyInstanceUIDs=<uid>
  *   /viewer?accessionNumber=O:64612
  *   /viewer?uhid=MRN-191004948
+ *
+ * These URLs already sit in third-party HIS deployments; the /viewer routeName
+ * is claimed by @ohif/mode-puru-report (Mode 2 with the Reports panel), so
+ * every one of them lands on the report-viewing layout automatically.
  *
  * "uhid" = external HIS Universal Health ID (e.g. MRN-191004948,
  * NWHB25-26-900065) — the same value the HL7 PID-3 carries and that lands on
@@ -17,7 +22,7 @@
  * The launcher hook queries puru-pacs's resolver
  * ({@code /api/viewer-resolve/by-accession} / {@code /by-uhid}) and:
  *
- *   - 1 study  → replaces the URL with /viewer?StudyInstanceUIDs=<uid> (browser navigates)
+ *   - 1 study  → replaces the URL with /viewer?StudyInstanceUIDs=<uid>
  *   - N studies → renders a picker; user clicks one to open it
  *   - 0 studies → renders a friendly "not found" panel
  *
@@ -118,6 +123,8 @@ export function usePuruLauncher(appConfig: any): LauncherState {
           const uid = studies[0].studyInstanceUID;
           setState({ status: 'redirecting', uid });
           // Replace the URL — browser doesn't push a back-stack entry for the launcher hop.
+          // /viewer routeName is claimed by mode-puru-report, so this lands in Mode 2
+          // with the Reports panel already visible next to the study.
           navigate(`/viewer?StudyInstanceUIDs=${encodeURIComponent(uid)}`, { replace: true });
           return;
         }

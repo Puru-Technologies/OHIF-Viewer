@@ -28,24 +28,26 @@ module.exports = {
         pale: '#7bb2ce',
       },
 
+      // Puru theme — deep steel-blue, low-chroma for image-first DICOM reads.
+      // Track this block in SYNC.md as a patched-file for merge conflicts.
       primary: {
-        light: '#5acce6',
-        main: '#0944b3',
-        dark: '#090c29',
-        active: '#348cfd',
+        light: '#7dd3fc',
+        main: '#334155',
+        dark: '#0c111b',
+        active: '#475569',
       },
       inputfield: {
-        main: '#3a3f99',
-        disabled: '#2b166b',
-        focus: '#5acce6',
-        placeholder: '#39383f',
+        main: '#334155',
+        disabled: '#1e293b',
+        focus: '#7dd3fc',
+        placeholder: '#64748b',
       },
 
       secondary: {
-        light: '#3a3f99',
-        main: '#2b166b',
-        dark: '#041c4a',
-        active: '#1f1f27',
+        light: '#334155',
+        main: '#1e293b',
+        dark: '#0c111b',
+        active: '#0f172a',
       },
 
       indigo: {
@@ -60,18 +62,18 @@ module.exports = {
         active: '#2c3074',
       },
       bkg: {
-        low: '#050615',
-        med: '#090C29',
-        full: '#041C4A',
+        low: '#0c111b',
+        med: '#111826',
+        full: '#1e293b',
       },
       info: {
         primary: '#FFFFFF',
-        secondary: '#7BB2CE',
+        secondary: '#94A3B8',
       },
       actions: {
-        primary: '#348CFD',
-        highlight: '#5ACCE6',
-        hover: 'rgba(52, 140, 253, 0.2)',
+        primary: '#475569',
+        highlight: '#7DD3FC',
+        hover: 'rgba(125, 211, 252, 0.15)',
       },
       customgreen: {
         100: '#05D97C',
