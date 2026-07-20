@@ -13,9 +13,6 @@ extensions.push("@ohif/extension-cornerstone");
 extensions.push("@ohif/extension-ultrasound-pleura-bline");
 extensions.push("@ohif/extension-puru-reports");
 extensions.push("@ohif/extension-puru-branding");
-// @ohif/mode-longitudinal (upstream routeName 'viewer') is intentionally NOT
-// pushed here — @ohif/mode-puru-report claims routeName 'viewer' instead so
-// external HIS deep-links land in Mode 2 (Reports panel included).
 modes.push("@ohif/mode-basic");
 modes.push("@ohif/mode-segmentation");
 modes.push("@ohif/mode-tmtv");
@@ -91,13 +88,6 @@ async function loadModule(module) {
   }
   if( module==="@ohif/extension-puru-branding") {
     const imported = await import("@ohif/extension-puru-branding");
-    return imported.default;
-  }
-  // mode-longitudinal loader intentionally kept — the npm package stays
-  // installed so upstream files that reference it still resolve — but it's
-  // not in the modes.push list above, so it never registers a route.
-  if( module==="@ohif/mode-longitudinal") {
-    const imported = await import("@ohif/mode-longitudinal");
     return imported.default;
   }
   if( module==="@ohif/mode-basic") {
