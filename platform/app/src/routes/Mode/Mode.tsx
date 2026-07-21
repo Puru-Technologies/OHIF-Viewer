@@ -43,7 +43,7 @@ export default function ModeRoute(props: withAppTypes) {
     case 'redirecting':
       return <PuruLauncherSpinner />;
     case 'picker':
-      return <PuruStudyPicker state={launcher} />;
+      return <PuruStudyPicker state={launcher} appConfig={appConfig} />;
     case 'not-found':
       return <PuruLauncherNotFound state={launcher} />;
     case 'error':

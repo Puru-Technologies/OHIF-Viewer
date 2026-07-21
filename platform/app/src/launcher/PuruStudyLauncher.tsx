@@ -22,17 +22,38 @@
  * The launcher hook queries puru-pacs's resolver
  * ({@code /api/viewer-resolve/by-accession} / {@code /by-uhid}) and:
  *
- *   - 1 study  → replaces the URL with /viewer?StudyInstanceUIDs=<uid>
- *   - N studies → renders a picker; user clicks one to open it
+ *   - 1 study  → fetches the Weasis manifest via
+ *                {@code /generatemanifestjson/<id>} and redirects to
+ *                {@code /viewer/dicomjson?url=<manifest-url>}
+ *   - N studies → renders a picker; user clicks one to open it (same manifest hop)
  *   - 0 studies → renders a friendly "not found" panel
  *
  * The hook short-circuits when none of the launcher params are present, so
  * the existing /viewer?StudyInstanceUIDs=... URL is unaffected.
+ *
+ * ## Why the manifest hop instead of just /viewer?StudyInstanceUIDs=<uid>?
+ *
+ * On-prem installs configure a single {@code dicomjson} data source (no
+ * DICOMweb server exists inside a hospital LAN — DICOMweb only exists in the
+ * cloud, at GCP Healthcare API). {@code dicomjson} needs an explicit
+ * {@code ?url=<manifest>} to know what to fetch; a bare
+ * {@code ?StudyInstanceUIDs=<uid>} would leave OHIF with nothing to look up
+ * and it would render its "One or more of the requested studies are not
+ * available at this time." error. The manifest URL is the same one hydrogen
+ * builds ({@code dicom-viewer-splash.component.ts}) and matches how puru-pacs
+ * serves DICOM to Weasis and to the launcher-agnostic hydrogen flow.
  */
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 type StudyRow = {
+  /**
+   * puru-pacs internal Study primary key (Long). Required to fetch the
+   * Weasis manifest via /generatemanifestjson/{id}. Older backends that
+   * predate this contract may omit it — the launcher falls back to an error
+   * panel in that case rather than opening an unresolvable UID URL.
+   */
+  id?: number;
   studyInstanceUID: string;
   accessionNumber: string | null;
   modality: string | null;
@@ -82,6 +103,47 @@ function resolvePacsBaseUrl(appConfig: any): string {
   return `${window.location.protocol}//${window.location.hostname}:8083`;
 }
 
+/**
+ * Resolve the manifest file-server port. Hydrogen's dicom-viewer-splash uses
+ * the environment's {@code serverPortFileExplorer} (port 81 in every hospital
+ * we've deployed to). We follow the same convention here so the manifest URLs
+ * this launcher generates are byte-for-byte identical to hydrogen's.
+ */
+function resolveFileServerPort(appConfig: any): number {
+  if (typeof appConfig?.puruFileServerPort === 'number') return appConfig.puruFileServerPort;
+  const parsed = Number(appConfig?.puruFileServerPort);
+  if (!Number.isNaN(parsed) && parsed > 0) return parsed;
+  return 81;
+}
+
+/**
+ * Fetch the manifest filename from puru-pacs and assemble the file-server URL
+ * OHIF's dicomjson data source will load. Mirrors
+ * {@code dicom-viewer-splash.component.ts:fetchManifest} on the hydrogen side.
+ */
+async function fetchManifestUrl(
+  pacsBaseUrl: string,
+  studyDbId: number,
+  fileServerPort: number
+): Promise<string> {
+  const resp = await fetch(`${pacsBaseUrl}/generatemanifestjson/${studyDbId}`, {
+    credentials: 'omit',
+    headers: { Accept: 'application/json' },
+  });
+  if (!resp.ok) throw new Error(`generatemanifestjson returned HTTP ${resp.status}`);
+  const body = await resp.json();
+  if (!body?.b || !body?.s) throw new Error('Manifest generation failed');
+
+  // Same-hostname; only the port differs (viewer :3000 → file server :81).
+  const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+  const protocol = typeof window !== 'undefined' ? window.location.protocol : 'http:';
+  return `${protocol}//${host}:${fileServerPort}/manifest/${body.s}`;
+}
+
+function buildViewerUrl(manifestUrl: string): string {
+  return `/viewer/dicomjson?url=${encodeURIComponent(manifestUrl)}`;
+}
+
 export function usePuruLauncher(appConfig: any): LauncherState {
   const location = useLocation();
   const navigate = useNavigate();
@@ -99,6 +161,7 @@ export function usePuruLauncher(appConfig: any): LauncherState {
     }
 
     const baseUrl = resolvePacsBaseUrl(appConfig);
+    const fileServerPort = resolveFileServerPort(appConfig);
     const url =
       launcherParam.key === 'accessionNumber'
         ? `${baseUrl}/api/viewer-resolve/by-accession?accessionNumber=${encodeURIComponent(launcherParam.value)}`
@@ -112,7 +175,7 @@ export function usePuruLauncher(appConfig: any): LauncherState {
         if (!r.ok) throw new Error(`puru-pacs returned HTTP ${r.status}`);
         return r.json();
       })
-      .then(data => {
+      .then(async data => {
         if (cancelled) return;
         const studies: StudyRow[] = data?.studies ?? [];
         if (studies.length === 0) {
@@ -120,12 +183,19 @@ export function usePuruLauncher(appConfig: any): LauncherState {
           return;
         }
         if (studies.length === 1) {
-          const uid = studies[0].studyInstanceUID;
-          setState({ status: 'redirecting', uid });
+          const s = studies[0];
+          if (typeof s.id !== 'number') {
+            throw new Error(
+              'puru-pacs resolver did not return a numeric study id; upgrade puru-pacs to enable the OHIF launcher.'
+            );
+          }
+          setState({ status: 'redirecting', uid: s.studyInstanceUID });
+          const manifestUrl = await fetchManifestUrl(baseUrl, s.id, fileServerPort);
+          if (cancelled) return;
           // Replace the URL — browser doesn't push a back-stack entry for the launcher hop.
           // /viewer routeName is claimed by mode-puru-report, so this lands in Mode 2
           // with the Reports panel already visible next to the study.
-          navigate(`/viewer?StudyInstanceUIDs=${encodeURIComponent(uid)}`, { replace: true });
+          navigate(buildViewerUrl(manifestUrl), { replace: true });
           return;
         }
         setState({
@@ -155,15 +225,42 @@ export function usePuruLauncher(appConfig: any): LauncherState {
 }
 
 /**
+ * Shared click-handler for the picker — resolves the manifest URL for the
+ * clicked study and navigates. Exposed as a hook-free helper so the picker
+ * component can call it directly from an onClick.
+ */
+async function openStudyViaManifest(
+  study: StudyRow,
+  appConfig: any,
+  navigate: ReturnType<typeof useNavigate>,
+  onError: (msg: string) => void
+) {
+  try {
+    if (typeof study.id !== 'number') {
+      throw new Error('Study row missing numeric id — cannot fetch manifest.');
+    }
+    const baseUrl = resolvePacsBaseUrl(appConfig);
+    const fileServerPort = resolveFileServerPort(appConfig);
+    const manifestUrl = await fetchManifestUrl(baseUrl, study.id, fileServerPort);
+    navigate(buildViewerUrl(manifestUrl), { replace: true });
+  } catch (err: any) {
+    onError(err?.message ?? 'Failed to open study');
+  }
+}
+
+/**
  * Inline picker UI shown when the resolver returns more than one study.
  * Compact 4-column table per the agreed spec: date, modality, description, accession.
  */
 export function PuruStudyPicker({
   state,
+  appConfig,
 }: {
   state: Extract<LauncherState, { status: 'picker' }>;
+  appConfig: any;
 }) {
   const navigate = useNavigate();
+  const [openError, setOpenError] = useState<string | null>(null);
 
   return (
     <div style={containerStyle}>
@@ -174,6 +271,9 @@ export function PuruStudyPicker({
             {state.key} <code style={codeStyle}>{state.value}</code> matched {state.studies.length} studies. Click one to open.
           </div>
         </div>
+        {openError && (
+          <div style={pickerErrorStyle}>{openError}</div>
+        )}
         <table style={tableStyle}>
           <thead>
             <tr style={theadRowStyle}>
@@ -188,9 +288,7 @@ export function PuruStudyPicker({
               <tr
                 key={s.studyInstanceUID}
                 style={trStyle}
-                onClick={() =>
-                  navigate(`/viewer?StudyInstanceUIDs=${encodeURIComponent(s.studyInstanceUID)}`, { replace: true })
-                }
+                onClick={() => openStudyViaManifest(s, appConfig, navigate, setOpenError)}
                 onMouseEnter={e => (e.currentTarget.style.background = '#1f2937')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
               >
@@ -330,6 +428,15 @@ const codeStyle: React.CSSProperties = {
   padding: '2px 6px',
   borderRadius: 3,
   color: '#cbd5e1',
+  fontSize: 12,
+};
+const pickerErrorStyle: React.CSSProperties = {
+  margin: '4px 0 12px',
+  padding: '10px 12px',
+  background: '#3f1d1d',
+  border: '1px solid #7f1d1d',
+  borderRadius: 6,
+  color: '#fca5a5',
   fontSize: 12,
 };
 const spinnerStyle: React.CSSProperties = {
