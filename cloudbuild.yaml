@@ -16,6 +16,39 @@ steps:
           docker tag "$${IMAGE}:latest" "$${IMAGE}:${TAG_NAME}"
           docker push "$${IMAGE}:${TAG_NAME}"
         fi
+
+        # Extract the built static bundle from the just-built image and stage
+        # it in /workspace so the next step (gsutil) can upload it. Runs in
+        # the same builder container so `docker create` works locally.
+        # Mirrors the puru-hydrogen tarball layout consumed by puru-nucleus
+        # native-mode installs at gs://puru-releases/jars/<svc>/{latest,builds/<sha>}/.
+        CID="$(docker create "$${IMAGE}:latest")"
+        mkdir -p /workspace/dviewer-dist
+        docker cp "$${CID}:/usr/share/nginx/html/." /workspace/dviewer-dist/
+        docker rm "$${CID}" >/dev/null
+
+        tar -czf /workspace/dviewer.tar.gz -C /workspace/dviewer-dist .
+        rm -rf /workspace/dviewer-dist
+
+        BUILT_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+        cat > /workspace/meta.json <<EOF
+        {"service":"dviewer","short_sha":"${SHORT_SHA}","commit_sha":"${COMMIT_SHA}","build_id":"${BUILD_ID}","built_at":"$${BUILT_AT}","artifact":"dviewer.tar.gz","type":"angular"}
+        EOF
+
+  - name: gcr.io/cloud-builders/gsutil
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -e
+        gsutil cp /workspace/dviewer.tar.gz gs://puru-releases/jars/dviewer/latest/dviewer.tar.gz
+        gsutil cp /workspace/meta.json      gs://puru-releases/jars/dviewer/latest/meta.json
+        gsutil cp /workspace/dviewer.tar.gz gs://puru-releases/jars/dviewer/builds/${SHORT_SHA}/dviewer.tar.gz
+        gsutil cp /workspace/meta.json      gs://puru-releases/jars/dviewer/builds/${SHORT_SHA}/meta.json
+        if [[ -n "${TAG_NAME}" && "${TAG_NAME}" == puru-* ]]; then
+          gsutil cp /workspace/dviewer.tar.gz gs://puru-releases/jars/dviewer/builds/${TAG_NAME}/dviewer.tar.gz
+          gsutil cp /workspace/meta.json      gs://puru-releases/jars/dviewer/builds/${TAG_NAME}/meta.json
+        fi
 options:
   dynamic_substitutions: true
   logging: CLOUD_LOGGING_ONLY
