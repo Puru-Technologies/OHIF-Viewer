@@ -127,18 +127,17 @@ const PuruLanding = () => {
         </p>
       </div>
 
-      {/* Company mark, anchored bottom-center — small + soft so it reads
-          as a footer credit, not competing with the product lockup above. */}
+      {/* Company mark, tucked bottom-right — reads as a footer credit,
+          doesn't compete with the centered product lockup above. */}
       <img
         src="/puru-labs-full-logo-on-dark.svg"
         alt="Puru Labs Private Limited"
         style={{
           position: 'absolute',
-          bottom: '32px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 'clamp(180px, 18vw, 240px)',
-          opacity: 0.7,
+          bottom: '24px',
+          right: '32px',
+          width: 'clamp(140px, 14vw, 190px)',
+          opacity: 0.55,
           animation: 'fadeInUp 0.8s ease-out 1s both',
         }}
       />
