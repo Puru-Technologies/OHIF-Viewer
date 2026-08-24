@@ -14,7 +14,7 @@ function PuruAboutModal() {
 
   return (
     <AboutModal className="w-[400px]">
-      <AboutModal.ProductName>Puru DICOM Viewer</AboutModal.ProductName>
+      <AboutModal.ProductName>Puru Viewer</AboutModal.ProductName>
       <AboutModal.ProductVersion>{main}</AboutModal.ProductVersion>
       {beta && <AboutModal.ProductBeta>{beta}</AboutModal.ProductBeta>}
 

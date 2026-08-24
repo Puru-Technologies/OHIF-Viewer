@@ -196,6 +196,23 @@
       src="<%= PUBLIC_URL %>init-service-worker.js"
     ></script>
 
+    <!-- Comfortaa (brand font) — used by <puru-wordmark>-style marks including
+         the LoadingOHIFMark spinner. Preconnect + display=swap so the fallback
+         Inter renders instantly and Comfortaa upgrades in when it arrives. -->
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
     <title>Puru DICOM Viewer</title>
 
     <script>

@@ -1,20 +1,67 @@
 import React from 'react';
 import type { IconProps } from '../types';
 
+/**
+ * Puru-branded loading mark rendered by <LoadingIndicatorProgress /> on top
+ * of every study load / manifest fetch. Was the OHIF 4-square logo;
+ * swapped 2026-08 to match the "puru." wordmark with a bouncing red dot
+ * — variant 1e from the Puru Spinner design brief (dark-surface treatment
+ * of variant 1b, "best for full-screen app boot / login"). The bounce
+ * runs at 0.7s ease-in-out and is the only motion in the mark; the
+ * ProgressLoadingBar underneath still handles progress-indicator motion.
+ *
+ * Font: Comfortaa (loaded via <link> in platform/app/public/html-templates/
+ * index.html). Inter is the graceful fallback while Comfortaa is fetching
+ * or if the CDN is unreachable.
+ *
+ * Filename kept as LoadingOHIFMark to avoid patching the upstream Icons
+ * registry (Icons.tsx export map) — treat the name as a location fossil.
+ *
+ * Consumer usage stays the same as the old 4-square:
+ *   <Icons.LoadingOHIFMark className="h-12 w-12 text-white" />
+ * — the wordmark scales to whatever height the class provides.
+ */
 export const LoadingOHIFMark = (props: IconProps) => (
   <svg
-    width="47"
-    height="47"
-    viewBox="0 0 47 47"
+    viewBox="0 0 200 60"
     xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-label="Loading"
     {...props}
   >
-    <g
-      fill="#FFF"
-      fillRule="nonzero"
+    <style>{`
+      @keyframes puru-dot-bounce {
+        0%, 100% { transform: translateY(0); }
+        50%      { transform: translateY(-10px); }
+      }
+      .puru-loader-dot {
+        animation: puru-dot-bounce 0.7s ease-in-out infinite;
+        transform-origin: center;
+        transform-box: fill-box;
+      }
+    `}</style>
+    <text
+      x="0"
+      y="46"
+      fontFamily="'Comfortaa', 'Inter', ui-rounded, system-ui, -apple-system, sans-serif"
+      fontSize="48"
+      fontWeight="500"
+      fill="#ffffff"
+      letterSpacing="-1"
     >
-      <path d="M43.585 0H29.763a3.415 3.415 0 0 0-3.415 3.415v13.822a3.415 3.415 0 0 0 3.415 3.415h13.822A3.415 3.415 0 0 0 47 17.237V3.415A3.415 3.415 0 0 0 43.585 0zM29.763 1.366h13.822c1.132 0 2.05.917 2.05 2.049v13.822a2.049 2.049 0 0 1-2.05 2.049H29.763a2.049 2.049 0 0 1-2.049-2.05V3.416c0-1.132.918-2.05 2.05-2.05zM17.237 0H3.415A3.415 3.415 0 0 0 0 3.415v13.822a3.415 3.415 0 0 0 3.415 3.415h13.822a3.415 3.415 0 0 0 3.415-3.415V3.415A3.415 3.415 0 0 0 17.237 0zM3.415 1.366h13.822c1.131 0 2.049.917 2.049 2.049v13.822a2.049 2.049 0 0 1-2.05 2.049H3.416a2.049 2.049 0 0 1-2.05-2.05V3.416c0-1.132.918-2.05 2.05-2.05zM43.585 26.348H29.763a3.415 3.415 0 0 0-3.415 3.415v13.822A3.415 3.415 0 0 0 29.763 47h13.822A3.415 3.415 0 0 0 47 43.585V29.763a3.415 3.415 0 0 0-3.415-3.415zm-13.822 1.366h13.822c1.132 0 2.05.918 2.05 2.05v13.821a2.049 2.049 0 0 1-2.05 2.05H29.763a2.049 2.049 0 0 1-2.049-2.05V29.763c0-1.131.918-2.049 2.05-2.049zM17.237 26.348H3.415A3.415 3.415 0 0 0 0 29.763v13.822A3.415 3.415 0 0 0 3.415 47h13.822a3.415 3.415 0 0 0 3.415-3.415V29.763a3.415 3.415 0 0 0-3.415-3.415zM3.415 27.714h13.822c1.131 0 2.049.918 2.049 2.05v13.821a2.049 2.049 0 0 1-2.05 2.05H3.416a2.049 2.049 0 0 1-2.05-2.05V29.763c0-1.131.918-2.049 2.05-2.049z" />
-    </g>
+      puru
+    </text>
+    <text
+      className="puru-loader-dot"
+      x="140"
+      y="46"
+      fontFamily="'Comfortaa', 'Inter', ui-rounded, system-ui, -apple-system, sans-serif"
+      fontSize="48"
+      fontWeight="700"
+      fill="#e83a3a"
+    >
+      .
+    </text>
   </svg>
 );
 
