@@ -13,7 +13,16 @@ import React from 'react';
  */
 const PuruLanding = () => {
   return (
-    <div className="absolute flex h-full w-full items-center justify-center bg-black overflow-hidden">
+    <div
+      className="absolute flex h-full w-full items-center justify-center overflow-hidden"
+      style={{
+        // Diagonal navy gradient matching puru-online-radiology's login/layout
+        // shells — keeps the brand consistent across product landings. Darker
+        // corners, subtle cyan-navy mid so the cyan glow orb + `puru.` mark
+        // pop with more depth than pure black.
+        background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%)',
+      }}
+    >
       {/* Subtle animated background grid */}
       <div className="absolute inset-0 opacity-[0.03]">
         <div
