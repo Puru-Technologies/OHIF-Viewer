@@ -16,38 +16,43 @@ const PuruLanding = () => {
     <div
       className="absolute flex h-full w-full items-center justify-center overflow-hidden"
       style={{
-        // Deep navy — matches the puru-online-radiology palette. The chest-
-        // X-ray watermark layer sits on top providing the medical texture.
+        // Deep navy base — matches the brand ink. Aurora glow orbs on top
+        // provide life without literal imagery.
         background: '#0a1220',
       }}
     >
-      {/* Chest-X-ray silhouette watermark — abstract ribcage/spine/heart,
-          hand-drawn SVG (not a real patient scan). At 6% opacity it reads
-          as a medical texture without competing with the product lockup. */}
+      {/* Aurora — two soft cyan orbs at offset corners, slow drift so the
+          background feels alive without demanding attention. */}
       <div
-        className="absolute inset-0 flex items-center justify-center"
-        style={{ opacity: 0.06, animation: 'fadeInUp 1.4s ease-out both' }}
-      >
-        <img
-          src="/chest-xray-watermark.svg"
-          alt=""
-          aria-hidden="true"
-          style={{
-            width: 'clamp(400px, 55vh, 780px)',
-            height: 'auto',
-            filter: 'blur(0.4px)',
-          }}
-        />
-      </div>
-
-      {/* Cyan glow orb — echoes the brand accent, sits behind the wordmark */}
-      <div
-        className="absolute rounded-full blur-[120px]"
+        className="absolute rounded-full blur-[140px] pointer-events-none"
         style={{
-          width: '400px',
-          height: '400px',
-          background: 'radial-gradient(circle, rgba(0,158,251,0.15) 0%, transparent 70%)',
-          animation: 'pulse 4s ease-in-out infinite',
+          width: '520px',
+          height: '520px',
+          top: '-120px',
+          left: '-80px',
+          background: 'radial-gradient(circle, rgba(0,158,251,0.28) 0%, transparent 70%)',
+          animation: 'auroraDriftA 14s ease-in-out infinite',
+        }}
+      />
+      <div
+        className="absolute rounded-full blur-[160px] pointer-events-none"
+        style={{
+          width: '620px',
+          height: '620px',
+          bottom: '-160px',
+          right: '-120px',
+          background: 'radial-gradient(circle, rgba(0,158,251,0.20) 0%, transparent 70%)',
+          animation: 'auroraDriftB 18s ease-in-out infinite',
+        }}
+      />
+      {/* Center accent orb, subtle spotlight on the wordmark */}
+      <div
+        className="absolute rounded-full blur-[120px] pointer-events-none"
+        style={{
+          width: '340px',
+          height: '340px',
+          background: 'radial-gradient(circle, rgba(0,158,251,0.14) 0%, transparent 70%)',
+          animation: 'pulse 5s ease-in-out infinite',
         }}
       />
 
@@ -146,6 +151,14 @@ const PuruLanding = () => {
         @keyframes pulse {
           0%, 100% { opacity: 0.5; transform: scale(1); }
           50%      { opacity: 1;   transform: scale(1.1); }
+        }
+        @keyframes auroraDriftA {
+          0%, 100% { transform: translate(0, 0); }
+          50%      { transform: translate(60px, 40px); }
+        }
+        @keyframes auroraDriftB {
+          0%, 100% { transform: translate(0, 0); }
+          50%      { transform: translate(-50px, -30px); }
         }
         @keyframes dotBounce {
           0%, 100% { transform: translateY(0); }
