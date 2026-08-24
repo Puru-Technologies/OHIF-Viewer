@@ -16,33 +16,37 @@ const PuruLanding = () => {
     <div
       className="absolute flex h-full w-full items-center justify-center overflow-hidden"
       style={{
-        // Diagonal navy gradient matching puru-online-radiology's login/layout
-        // shells — keeps the brand consistent across product landings. Darker
-        // corners, subtle cyan-navy mid so the cyan glow orb + `puru.` mark
-        // pop with more depth than pure black.
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%)',
+        // Deep navy — matches the puru-online-radiology palette. The chest-
+        // X-ray watermark layer sits on top providing the medical texture.
+        background: '#0a1220',
       }}
     >
-      {/* Subtle animated background grid */}
-      <div className="absolute inset-0 opacity-[0.03]">
-        <div
-          className="h-full w-full"
+      {/* Chest-X-ray silhouette watermark — abstract ribcage/spine/heart,
+          hand-drawn SVG (not a real patient scan). At 6% opacity it reads
+          as a medical texture without competing with the product lockup. */}
+      <div
+        className="absolute inset-0 flex items-center justify-center"
+        style={{ opacity: 0.06, animation: 'fadeInUp 1.4s ease-out both' }}
+      >
+        <img
+          src="/chest-xray-watermark.svg"
+          alt=""
+          aria-hidden="true"
           style={{
-            backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-            backgroundSize: '60px 60px',
-            animation: 'gridDrift 20s linear infinite',
+            width: 'clamp(400px, 55vh, 780px)',
+            height: 'auto',
+            filter: 'blur(0.4px)',
           }}
         />
       </div>
 
-      {/* Cyan glow orb — echoes the brand accent */}
+      {/* Cyan glow orb — echoes the brand accent, sits behind the wordmark */}
       <div
         className="absolute rounded-full blur-[120px]"
         style={{
           width: '400px',
           height: '400px',
-          background: 'radial-gradient(circle, rgba(0,158,251,0.18) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(0,158,251,0.15) 0%, transparent 70%)',
           animation: 'pulse 4s ease-in-out infinite',
         }}
       />
@@ -142,10 +146,6 @@ const PuruLanding = () => {
         @keyframes pulse {
           0%, 100% { opacity: 0.5; transform: scale(1); }
           50%      { opacity: 1;   transform: scale(1.1); }
-        }
-        @keyframes gridDrift {
-          from { transform: translate(0, 0); }
-          to   { transform: translate(60px, 60px); }
         }
         @keyframes dotBounce {
           0%, 100% { transform: translateY(0); }
