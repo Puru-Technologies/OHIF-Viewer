@@ -6,11 +6,10 @@ import React from 'react';
  * who lands on the bare viewer URL. Prompts them to open the Puru
  * Radiology Console (which has the study list and deep-links here).
  *
- * Rebranded 2026-08 to the "puru viewer." wordmark language matching
- * the header logo + spinner: Comfortaa (loaded via Google Fonts from
- * index.html), lowercase `puru` in white + `viewer` in cyan #009efb +
- * red bouncing dot #e83a3a. Same animated dark background as before
- * (subtle grid + soft glow) since it read well.
+ * Rebranded 2026-08 to a two-line product lockup: big centered `puru.`
+ * wordmark (Comfortaa, white + bouncing red dot) with "DICOM Viewer"
+ * tracked-caps subtitle underneath. Same visual language as the header
+ * logo + spinner. Dark bg with subtle animated grid + cyan glow.
  */
 const PuruLanding = () => {
   return (
@@ -44,15 +43,14 @@ const PuruLanding = () => {
         className="relative z-10 flex flex-col items-center text-center px-6"
         style={{ animation: 'fadeInUp 0.8s ease-out' }}
       >
-        {/* Wordmark: puru viewer. (Comfortaa, bouncing red dot) */}
+        {/* Wordmark: puru. — big, Comfortaa, bouncing dot */}
         <div
-          className="mb-8"
           style={{
             animation: 'fadeInUp 0.8s ease-out 0.2s both',
             fontFamily:
               "'Comfortaa', 'Inter', ui-rounded, system-ui, -apple-system, sans-serif",
-            letterSpacing: '-1px',
-            fontSize: '64px',
+            letterSpacing: '-2px',
+            fontSize: 'clamp(72px, 12vw, 128px)',
             lineHeight: 1,
             display: 'flex',
             alignItems: 'baseline',
@@ -60,9 +58,6 @@ const PuruLanding = () => {
           }}
         >
           <span style={{ color: '#ffffff', fontWeight: 500 }}>puru</span>
-          <span style={{ color: '#009efb', fontWeight: 500, marginLeft: '0.18em' }}>
-            viewer
-          </span>
           <span
             style={{
               display: 'inline-block',
@@ -75,10 +70,27 @@ const PuruLanding = () => {
           </span>
         </div>
 
+        {/* Product subtitle: DICOM Viewer — tracked caps, secondary */}
+        <div
+          style={{
+            marginTop: '18px',
+            animation: 'fadeInUp 0.8s ease-out 0.4s both',
+            fontFamily:
+              "'Comfortaa', 'Inter', ui-rounded, system-ui, -apple-system, sans-serif",
+            fontSize: '15px',
+            fontWeight: 500,
+            letterSpacing: '0.32em',
+            color: '#cfd8e3',
+            textTransform: 'uppercase',
+          }}
+        >
+          DICOM Viewer
+        </div>
+
         {/* Divider */}
         <div
-          className="mb-6"
-          style={{ animation: 'fadeInUp 0.8s ease-out 0.5s both' }}
+          className="mt-8 mb-5"
+          style={{ animation: 'fadeInUp 0.8s ease-out 0.55s both' }}
         >
           <div
             className="h-px w-16 mx-auto"
@@ -89,11 +101,11 @@ const PuruLanding = () => {
           />
         </div>
 
-        {/* Message */}
+        {/* Prompt */}
         <p
           className="text-base text-gray-400 font-light max-w-md leading-relaxed"
           style={{
-            animation: 'fadeInUp 0.8s ease-out 0.6s both',
+            animation: 'fadeInUp 0.8s ease-out 0.7s both',
             fontFamily:
               "'Comfortaa', 'Inter', ui-rounded, system-ui, -apple-system, sans-serif",
           }}
