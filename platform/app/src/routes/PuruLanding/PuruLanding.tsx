@@ -52,7 +52,7 @@ const PuruLanding = () => {
         className="relative z-10 flex flex-col items-center text-center px-6"
         style={{ animation: 'fadeInUp 0.8s ease-out' }}
       >
-        {/* Wordmark: puru. — big, Comfortaa, bouncing dot */}
+        {/* Wordmark: puru labs. — big, Comfortaa, cyan accent + bouncing dot */}
         <div
           style={{
             animation: 'fadeInUp 0.8s ease-out 0.2s both',
@@ -67,6 +67,9 @@ const PuruLanding = () => {
           }}
         >
           <span style={{ color: '#ffffff', fontWeight: 500 }}>puru</span>
+          <span style={{ color: '#009efb', fontWeight: 500, marginLeft: '0.18em' }}>
+            labs
+          </span>
           <span
             style={{
               display: 'inline-block',
@@ -127,20 +130,8 @@ const PuruLanding = () => {
         </p>
       </div>
 
-      {/* Company mark, tucked bottom-right — reads as a footer credit,
-          doesn't compete with the centered product lockup above. */}
-      <img
-        src="/puru-labs-full-logo-on-dark.svg"
-        alt="Puru Labs Private Limited"
-        style={{
-          position: 'absolute',
-          bottom: '24px',
-          right: '32px',
-          width: 'clamp(140px, 14vw, 190px)',
-          opacity: 0.55,
-          animation: 'fadeInUp 0.8s ease-out 1s both',
-        }}
-      />
+      {/* Bottom company mark removed — redundant now that the main
+          lockup carries "puru labs." itself. */}
 
       {/* Keyframes */}
       <style>{`
