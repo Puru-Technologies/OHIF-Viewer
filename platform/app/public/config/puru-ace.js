@@ -70,3 +70,23 @@ window.config = {
     console.warn(error.status);
   },
 };
+
+// PACS Ace: name the browser tab after the patient. Read from the dicomjson manifest the viewer is
+// opening (no patient data in the URL); re-applied if the app changes document.title later.
+(function () {
+  try {
+    var manifestUrl = new URLSearchParams(window.location.search).get('url');
+    if (!manifestUrl) return;
+    fetch(manifestUrl)
+      .then(function (r) { return r.json(); })
+      .then(function (m) {
+        var s = m && m.studies && m.studies[0];
+        if (!s || !s.PatientName) return;
+        var title = String(s.PatientName).replace(/\^/g, ' ').trim();
+        var apply = function () { if (document.title !== title) document.title = title; };
+        apply();
+        new MutationObserver(apply).observe(document.head, { childList: true, subtree: true, characterData: true });
+      })
+      .catch(function () {});
+  } catch (e) {}
+})();
